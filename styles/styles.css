@@ -2,11 +2,25 @@ h1 {
     color: blueviolet;
 }
 
+#questionsHere {
+    display: flex;
+    flex-flow: column;
+}
 
 .category {
-    color: burlywood;
+    display: flex;
+    flex-flow: column;
+    color: blue;
 }
 
 .question {
-    color: aqua;
+    color: rgb(40, 109, 8);
+}
+
+.answer {
+    color: red;
+}
+
+.input-box {
+    width: 200px;
 }
