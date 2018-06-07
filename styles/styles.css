@@ -24,3 +24,12 @@ h1 {
 .input-box {
     width: 200px;
 }
+
+#questionsHere {
+    max-width: 620px;
+    background-color: aquamarine;
+}
+
+#createGameBtn {
+    color: forestgreen;
+}
