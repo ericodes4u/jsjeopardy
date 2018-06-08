@@ -33,3 +33,28 @@ h1 {
 #createGameBtn {
     color: forestgreen;
 }
+
+.hidden {
+    background-color: black;
+}
+
+#gameHere {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.display-question {
+    color: aliceblue;
+    background-color: blue;
+    text-align: center;
+    height: 100px;
+    margin: 1%;
+}
+
+.catDiv {
+    text-align: center;
+    background-color: black;
+    width: 18%;
+    margin: 1%;
+    color: white;
+}

@@ -7,6 +7,12 @@ var questionsDrop = document.getElementById('questions');
 var categoriesDrop = document.getElementById('categories');
 var questions = document.getElementById("questions").value;
 var categories = document.getElementById("categories").value;
+var questionsHere = document.getElementById('questionsHere');
+var gameHere = document.getElementById('gameHere');
+var gameQuestionIds = [];
+var gameAnswerIds = [];
+var gameCategoryIds = [];
+var gameValues = [];
 var freshGame = 0;
 
 /**
@@ -25,21 +31,60 @@ function checkNumbers() {
     categories = document.getElementById("categories").value;
 }
 
-var test = function () {
+function test() {
     console.log();
     console.log("I'm a little teapot");
     console.log(questions,categories);
     console.log(gameQuestionIds,gameAnswerIds);
 }
 
+function getGameValues() {
+    for (i = 0; i < gameQuestionIds.length; i++) {
+        var currentQuestionId = gameQuestionIds[i];
+		var currentAnswerId = gameAnswerIds[i];
+		var currentCategoryId = `C${gameQuestionIds[i].charAt(1)}`;
+		var currentCategoryName = document.getElementById(currentCategoryId).value;
+        var currentQuestionValue = document.getElementById(currentQuestionId).value;
+        var currentAnswerValue = document.getElementById(currentAnswerId).value;
+        var currentCategory = Number(gameQuestionIds[i].charAt(1));
+        var currentQuestion = Number(gameQuestionIds[i].charAt(3));
+        var currentObject = {
+            cname: currentCategoryName,
+            qnum: currentQuestion,
+            question: currentQuestionValue,
+            answer: currentAnswerValue
+		};
+		// console.log(currentCategoryName);
+        gameValues.push(currentObject);
+	}
+
+    // console.log(gameValues);
+    return gameValues;
+}
+
+function createGame(gameData) {
+	questionsHere.style.display = "none";
+    for (let i = 0; i < gameData.length; i++) {
+		var tv = gameData[i];
+		if (tv.cname !== lastCat || i == 0) {
+			var categoryDiv = document.createElement("div");
+			categoryDiv.textContent = tv.cname;
+			categoryDiv.className = "catDiv";
+			gameHere.appendChild(categoryDiv);
+			var lastCat = tv.cname;
+		} else {
+			var showQuestion = document.createElement("div");
+			showQuestion.textContent = tv.question;
+			showQuestion.className = "display-question";
+			categoryDiv.appendChild(showQuestion);
+		}        
+    }
+}
 function createQuestions() {
     if (freshGame == 0) {
         freshGame = 1;
-        let makeCategories = categories;
-        let makeQuestions = questions;
-        let questionsHere = document.getElementById('questionsHere');
-        var gameQuestionIds = [];
-        var gameAnswerIds = [];
+        var makeCategories = categories;
+        var makeQuestions = questions;
 
         while (makeCategories > 0) {
             makeQuestions = questions;
@@ -47,13 +92,15 @@ function createQuestions() {
             var catLabel = document.createElement("label");
             var catInput = document.createElement("input");
             newCat.className = "category";
-            catInput.className = "input-box"
-            catInput.id = `C${makeCategories}`;
+            catInput.className = "input-box";
+			catInput.id = `C${makeCategories}`;
+			catInput.value = `C${makeCategories}`; //DELETE THIS
+			gameCategoryIds.push(catInput.id);
             catLabel.textContent = "Category name: ";
             catInput.placeholder = "Category name here";
             newCat.appendChild(catLabel);
             newCat.appendChild(catInput);
-            let questionNumber = 1;
+            var questionNumber = 1;
             while (makeQuestions > 0) {
                 var queDiv = document.createElement("div");
                 var queLabel = document.createElement("label");
@@ -64,9 +111,11 @@ function createQuestions() {
                 ansLabel.textContent = `Answer #${questionNumber}: `;
                 queLabel.className = "question";
                 queInput.id = `C${makeCategories}Q${questionNumber}`;
+                queInput.value = `C${makeCategories}Q${questionNumber}`; //DELETE THIS
                 gameQuestionIds.push(queInput.id);
                 ansLabel.className = "answer";
                 ansInput.id = `C${makeCategories}A${questionNumber}`;
+                ansInput.value = `C${makeCategories}A${questionNumber}`; //DELETE THIS
                 gameAnswerIds.push(ansInput.id);
                 queInput.className = "input-box";
                 ansInput.className = "input-box";
@@ -92,39 +141,23 @@ function createQuestions() {
         questionsHere.appendChild(finishedButton);
         document.getElementById('C5Q1');
         
-        finishedButton.addEventListener("click", function() {
-            var gameValues = [];
-            for (i=0; i<gameQuestionIds.length; i++) {
-                let currentQuestionId = gameQuestionIds[i];
-                let currentAnswerId = gameAnswerIds[i];
-                let currentQuestionValue = document.getElementById(currentQuestionId).value;
-                let currentAnswerValue = document.getElementById(currentAnswerId).value;
-                let currentCategory = Number(gameQuestionIds[i].charAt(1));
-                let currentQuestion = Number(gameQuestionIds[i].charAt(3))
-                let currentObject = {
-                    cnum: currentCategory,
-                    qnum: currentQuestion,
-                    question: currentQuestionValue,
-                    answer: currentAnswerValue
-                }
-                gameValues.push(currentObject);
-            }
-            console.log(gameValues);
-        });
-        } 
+        finishedButton.addEventListener("click", () => { createGame(getGameValues());});
+        }
         
         
         
         
-        else {alert("Please hit the 'Reset me button' to make a new game")}
+        else {alert("Please hit the 'Reset me button' to make a new game");}
     }
     
 
-    function refreshPage() {
-    // var r = confirm("Are you sure you want to start again from the beginning?")
-    // if (r) {
-    //     // put code here after testing
-    // }
-        window.location.reload(false);
-        freshGame = 0;
-    }
+
+
+function refreshPage() {
+// var r = confirm("Are you sure you want to start again from the beginning?")
+// if (r) {
+//     // put code here after testing
+// }
+    window.location.reload(false);
+    freshGame = 0;
+}
