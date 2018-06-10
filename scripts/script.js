@@ -64,19 +64,55 @@ function getGameValues() {
 
 function createGame(gameData) {
 	questionsHere.style.display = "none";
+    var catNum = 1; 
     for (let i = 0; i < gameData.length; i++) {
-		var tv = gameData[i];
+        var tv = gameData[i];
 		if (tv.cname !== lastCat || i == 0) {
+            /******** Create div for category ********/
 			var categoryDiv = document.createElement("div");
 			categoryDiv.textContent = tv.cname;
-			categoryDiv.className = "catDiv";
+            categoryDiv.className = "catDiv";
+            categoryDiv.id = `tvcat${catNum}`;
 			gameHere.appendChild(categoryDiv);
-			var lastCat = tv.cname;
-		} else {
+            var lastCat = tv.cname;
+            catNum++;
+            
+            /******** Create div for first question in category ********/
 			var showQuestion = document.createElement("div");
-			showQuestion.textContent = tv.question;
-			showQuestion.className = "display-question";
-			categoryDiv.appendChild(showQuestion);
+            var queNum = tv.qnum;
+            showQuestion.textContent = 10;
+            showQuestion.className = "display-question";
+            showQuestion.id = `displayQuestionC${catNum-1}Q${queNum}`;
+            categoryDiv.appendChild(showQuestion);
+            showQuestion.addEventListener('click', function () {
+                console.log(this.id);
+            });
+		} else {
+            /******** Create div for remaining questions in category ********/
+			var showQuestion = document.createElement("div");
+            var queNum = tv.qnum;
+            switch (queNum) {
+                case 2:
+                    showQuestion.textContent = 20;
+                    break;
+                case 3:
+                    showQuestion.textContent = 30;
+                    break;
+                case 4:
+                    showQuestion.textContent = 40;
+                    break;
+                case 5:
+                    showQuestion.textContent = 50;
+                    break;
+                default:
+                    break;
+            }
+            showQuestion.className = "display-question";
+            showQuestion.id = `displayQuestionC${catNum-1}Q${queNum}`;
+            categoryDiv.appendChild(showQuestion);
+            showQuestion.addEventListener('click', function () {
+                console.log(this.id);
+            });
 		}        
     }
 }
@@ -132,9 +168,8 @@ function createQuestions() {
                 questionsHere.appendChild(newCat);
                 makeCategories--;
             }
-        /**
-        * Submit button
-        **/
+            
+        /******** Submit button ********/
         var finishedButton = document.createElement("button");
         finishedButton.id = "createGameBtn";
         finishedButton.textContent = "I'm done!";
