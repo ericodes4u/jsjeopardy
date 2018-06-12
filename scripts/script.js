@@ -1,4 +1,12 @@
-//todo: create class/functionality for clicked questions
+/* 
+todo:
+create scoreboard
+create button to add points at the value of the question
+create choose number of teams?
+change numbers so it can't be less than 4 questions or categories?
+add plus/minus buttons?
+add final jeopardy
+*/
 
 /**
  * Global Variables
@@ -16,6 +24,7 @@ var gameAnswerIds = [];
 var gameCategoryIds = [];
 var gameValues = [];
 var freshGame = 0;
+var showingQuestion = false;
 
 /**
 * Event Listeners
@@ -73,48 +82,56 @@ function displaySingleQuestion() {
     var qId = this.id.substr(this.id.length - 4);
 
     /******** search for the right question, store question and answer variables ********/
-    for (i = 0; i < gameValues.length; i++) {
-        if (gameValues[i].qId == qId) {
-            var queCard = gameValues[i].question;
-            var ansCard = gameValues[i].answer;
+    if (showingQuestion == false) {
+        for (i = 0; i < gameValues.length; i++) {
+            if (gameValues[i].qId == qId) {
+                var queCard = gameValues[i].question;
+                var ansCard = gameValues[i].answer;
+            }
         }
-    }
 
-    /******** create question div ********/
-    var bigCard = document.createElement("div");
-    bigCard.id = "shownQuestion";
-    var bigCardContent = document.createElement("div");
-    bigCardContent.textContent = queCard;
-    var answerButton = document.createElement("button");
-    answerButton.textContent = "What's the answer???";
-    answerButton.id = "answerButton";
-    bigCard.appendChild(bigCardContent);
-    bigCard.appendChild(answerButton);
-    gameHere.appendChild(bigCard);
-
-    /******** event listener for answer button ********/
-    answerButton.addEventListener('click', function () {
-        /******** remove question div ********/
-        gameHere.removeChild(document.getElementById('shownQuestion'));
-        
-        /******** create answer div ********/
+        /******** create question div ********/
         var bigCard = document.createElement("div");
-        bigCard.id = "shownAnswer";
+        bigCard.id = "shownQuestion";
+        bigCard.className = "modal";
         var bigCardContent = document.createElement("div");
-        bigCardContent.textContent = ansCard;
-        var closeButton = document.createElement("button");
-        closeButton.textContent = "Oh man!!";
-        closeButton.id = "closeButton";
+        bigCardContent.textContent = queCard;
+        var answerButton = document.createElement("button");
+        answerButton.textContent = "What's the answer???";
+        answerButton.id = "answerButton";
         bigCard.appendChild(bigCardContent);
-        bigCard.appendChild(closeButton);
+        bigCard.appendChild(answerButton);
         gameHere.appendChild(bigCard);
+        
+        showingQuestion = true;
+        this.className = "display-question clicked";
 
-        /******** event listener for close button ********/
-        closeButton.addEventListener('click', function () {
-            //remove answer div
-            gameHere.removeChild(document.getElementById('shownAnswer'));
+        /******** event listener for answer button ********/
+        answerButton.addEventListener('click', function () {
+            /******** remove question div ********/
+            gameHere.removeChild(document.getElementById('shownQuestion'));
+            
+            /******** create answer div ********/
+            var bigCard = document.createElement("div");
+            bigCard.id = "shownAnswer";
+            bigCard.className = "modal";
+            var bigCardContent = document.createElement("div");
+            bigCardContent.textContent = ansCard;
+            var closeButton = document.createElement("button");
+            closeButton.textContent = "Oh man!!";
+            closeButton.id = "closeButton";
+            bigCard.appendChild(bigCardContent);
+            bigCard.appendChild(closeButton);
+            gameHere.appendChild(bigCard);
+            
+            /******** event listener for close button ********/
+            closeButton.addEventListener('click', function () {
+                //remove answer div
+                gameHere.removeChild(document.getElementById('shownAnswer'));
+                showingQuestion = false;
+            });
         });
-    });
+    }
 }
 
 function createGameBoard(gameData) {
