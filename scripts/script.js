@@ -6,13 +6,15 @@ create choose number of teams?
 change numbers so it can't be less than 4 questions or categories?
 add plus/minus buttons?
 add final jeopardy
+add edit button
 */
 
 /**
  * Global Variables
  */
 var startButton = document.getElementById("startButton"); 
-var resetButton = document.querySelector('.resetButton');
+var resetButton = document.getElementById('resetButton');
+var editButton = document.getElementById('editButton');
 var questionsDrop = document.getElementById('questions');
 var categoriesDrop = document.getElementById('categories');
 var questions = document.getElementById("questions").value;
@@ -31,8 +33,9 @@ var showingQuestion = false;
 **/
 categoriesDrop.addEventListener('change', checkNumbers);
 questionsDrop.addEventListener('change', checkNumbers);
-startButton.addEventListener("click", createQuestions);
+startButton.addEventListener("click", createGameInputs);
 resetButton.addEventListener("click", refreshPage);
+editButton.addEventListener("click", editGame);
 
 /**
 * Functions
@@ -51,13 +54,90 @@ function checkNumbers() {
     categories = document.getElementById("categories").value;
 }
 
+/******** creates inputs for game data to be entered ********/
+function createGameInputs() {
+    /******** Initial check for if the start button has been pressed ********/
+    /******** Not pressed ********/
+    if (freshGame == 0) {
+        freshGame = 1;
+        var makeCategories = categories;
+        var makeQuestions = questions;
+
+        /******** create inputs for selected number of categories and add to id array ********/
+        while (makeCategories > 0) {
+            makeQuestions = questions;
+            var newCat = document.createElement("form");
+            var catLabel = document.createElement("label");
+            var catInput = document.createElement("input");
+            newCat.className = "category";
+            catInput.className = "input-box";
+            catInput.id = `C${makeCategories}`;
+            catInput.value = `C${makeCategories}`; //DELETE THIS
+            gameCategoryIds.push(catInput.id);
+            catLabel.textContent = "Category name: ";
+            catInput.placeholder = "Category name here";
+            newCat.appendChild(catLabel);
+            newCat.appendChild(catInput);
+            var questionNumber = 1; //sets number to count up from 1 instead of down from 5
+
+            /******** create inputs for selected number of questions and add to id array ********/
+            while (makeQuestions > 0) {
+                var queDiv = document.createElement("div");
+                var queLabel = document.createElement("label");
+                var queInput = document.createElement("input");
+                var ansLabel = document.createElement("label");
+                var ansInput = document.createElement("input");
+                queLabel.textContent = `Question #${questionNumber}: `;
+                ansLabel.textContent = `Answer #${questionNumber}: `;
+                queLabel.className = "question";
+                queInput.id = `C${makeCategories}Q${questionNumber}`;
+                queInput.value = `I'm a question!!! C${makeCategories}Q${questionNumber}`; //DELETE THIS
+                gameQuestionIds.push(queInput.id);
+                ansLabel.className = "answer";
+                ansInput.id = `C${makeCategories}A${questionNumber}`;
+                ansInput.value = `I'm an answer!!! C${makeCategories}A${questionNumber}`; //DELETE THIS
+                gameAnswerIds.push(ansInput.id);
+                queInput.className = "input-box";
+                ansInput.className = "input-box";
+                queInput.placeholder = `Question ${questionNumber}`;
+                ansInput.placeholder = `Answer ${questionNumber}`;
+                queDiv.appendChild(queLabel);
+                queDiv.appendChild(queInput);
+                queDiv.appendChild(ansLabel);
+                queDiv.appendChild(ansInput);
+                newCat.appendChild(queDiv);
+                makeQuestions--;
+                questionNumber++;
+            }
+            questionsHere.appendChild(newCat);
+            makeCategories--;
+        }
+
+        /******** Submit button ********/
+        var finishedButton = document.createElement("button");
+        finishedButton.id = "createGameBtn";
+        finishedButton.textContent = "I'm done!";
+        questionsHere.appendChild(finishedButton);
+        document.getElementById('C5Q1');
+
+        finishedButton.addEventListener("click", () => {
+            createGameBoard(getGameValues());
+        });
+    }
+    /******** pressed ********/
+    else {
+        alert("Please hit the 'Reset me button' to make a new game");
+    }
+}
+
+/******** puts input values into object ********/
 function getGameValues() {
     /******** use id array to make objects of input values, returns gameValues object ********/
     for (i = 0; i < gameQuestionIds.length; i++) {
         var currentQuestionId = gameQuestionIds[i];
-		var currentAnswerId = gameAnswerIds[i];
-		var currentCategoryId = `C${gameQuestionIds[i].charAt(1)}`;
-		var currentCategoryName = document.getElementById(currentCategoryId).value;
+        var currentAnswerId = gameAnswerIds[i];
+        var currentCategoryId = `C${gameQuestionIds[i].charAt(1)}`;
+        var currentCategoryName = document.getElementById(currentCategoryId).value;
         var currentQuestionValue = document.getElementById(currentQuestionId).value;
         var currentAnswerValue = document.getElementById(currentAnswerId).value;
         var currentCategory = Number(gameQuestionIds[i].charAt(1));
@@ -68,15 +148,76 @@ function getGameValues() {
             qnum: currentQuestion,
             question: currentQuestionValue,
             answer: currentAnswerValue
-		};
-		// console.log(gameValues);
+        };
+        // console.log(gameValues);
         gameValues.push(currentObject);
-	}
+    }
 
-    console.log(gameValues);
+    // console.log(gameValues);
     return gameValues;
 }
 
+/******** creates the game board with data ********/
+function createGameBoard(gameData) {
+    /******** Hide the input section ********/
+    questionsHere.style.display = "none";
+    var catNum = 1;
+
+    /******** Create div for category ********/
+    for (let i = 0; i < gameData.length; i++) {
+        var tv = gameData[i];
+        var queNum, showQuestion;
+        /******** Is this a new category?  Yes: ********/
+        if (tv.cname !== lastCat || i == 0) {
+            var categoryDiv = document.createElement("div");
+            categoryDiv.textContent = tv.cname;
+            categoryDiv.className = "catDiv";
+            categoryDiv.id = `tvcat${catNum}`;
+            gameHere.appendChild(categoryDiv);
+            var lastCat = tv.cname;
+            catNum++;
+
+            /******** Create div for first question in category ********/
+            showQuestion = document.createElement("div");
+            queNum = tv.qnum;
+            showQuestion.textContent = 10;
+            showQuestion.className = "display-question";
+            showQuestion.id = `displayQuestionC${catNum - 1}Q${queNum}`;
+            categoryDiv.appendChild(showQuestion);
+            showQuestion.addEventListener('click', displaySingleQuestion);
+        } else {
+            /******** Is this a new category?  No: ********/
+            /******** Create div for remaining questions in category ********/
+            showQuestion = document.createElement("div");
+            queNum = tv.qnum;
+            switch (queNum) {
+                case 2:
+                    showQuestion.textContent = 20;
+                    break;
+                case 3:
+                    showQuestion.textContent = 30;
+                    break;
+                case 4:
+                    showQuestion.textContent = 40;
+                    break;
+                case 5:
+                    showQuestion.textContent = 50;
+                    break;
+                default:
+                    break;
+            }
+            showQuestion.className = "display-question";
+            showQuestion.id = `displayQuestionC${catNum - 1}Q${queNum}`;
+            categoryDiv.appendChild(showQuestion);
+            showQuestion.addEventListener('click', displaySingleQuestion);
+            if (editButton.style.display = "none") {
+                editButton.style.display = "inline";
+            }
+        }
+    }
+}
+
+/******** shows questions/answers ********/
 function displaySingleQuestion() {
     /******** get question ID in form of C#Q# ********/
     var qId = this.id.substr(this.id.length - 4);
@@ -134,133 +275,16 @@ function displaySingleQuestion() {
     }
 }
 
-function createGameBoard(gameData) {
-    /******** Hide the input section ********/
-	questionsHere.style.display = "none";
-    var catNum = 1; 
-
-    /******** Create div for category ********/
-    for (let i = 0; i < gameData.length; i++) {
-        var tv = gameData[i];
-        var queNum, showQuestion;
-        /******** Is this a new category?  Yes: ********/
-		if (tv.cname !== lastCat || i == 0) {
-            var categoryDiv = document.createElement("div");
-			categoryDiv.textContent = tv.cname;
-            categoryDiv.className = "catDiv";
-            categoryDiv.id = `tvcat${catNum}`;
-			gameHere.appendChild(categoryDiv);
-            var lastCat = tv.cname;
-            catNum++;
-            
-            /******** Create div for first question in category ********/
-			showQuestion = document.createElement("div");
-            queNum = tv.qnum;
-            showQuestion.textContent = 10;
-            showQuestion.className = "display-question";
-            showQuestion.id = `displayQuestionC${catNum-1}Q${queNum}`;
-            categoryDiv.appendChild(showQuestion);
-            showQuestion.addEventListener('click', displaySingleQuestion);
-		} else {
-            /******** Is this a new category?  No: ********/
-            /******** Create div for remaining questions in category ********/
-			showQuestion = document.createElement("div");
-            queNum = tv.qnum;
-            switch (queNum) {
-                case 2:
-                    showQuestion.textContent = 20;
-                    break;
-                case 3:
-                    showQuestion.textContent = 30;
-                    break;
-                case 4:
-                    showQuestion.textContent = 40;
-                    break;
-                case 5:
-                    showQuestion.textContent = 50;
-                    break;
-                default:
-                    break;
-            }
-            showQuestion.className = "display-question";
-            showQuestion.id = `displayQuestionC${catNum-1}Q${queNum}`;
-            categoryDiv.appendChild(showQuestion);
-            showQuestion.addEventListener('click', displaySingleQuestion);
-		}        
+/******** allows game to be edited after first creation ********/
+function editGame() {
+    questionsHere.style.display = "flex";
+    while (gameHere.firstChild) {
+        gameHere.removeChild(gameHere.firstChild);
     }
+    gameValues = [];
 }
 
-function createQuestions() {
-    /******** Initial check for if the start button has been pressed ********/
-    /******** Not pressed ********/
-    if (freshGame == 0) {
-        freshGame = 1;
-        var makeCategories = categories;
-        var makeQuestions = questions;
-
-        /******** create inputs for selected number of categories and add to id array ********/
-        while (makeCategories > 0) {
-            makeQuestions = questions;
-            var newCat = document.createElement("form");
-            var catLabel = document.createElement("label");
-            var catInput = document.createElement("input");
-            newCat.className = "category";
-            catInput.className = "input-box";
-			catInput.id = `C${makeCategories}`;
-			catInput.value = `C${makeCategories}`; //DELETE THIS
-			gameCategoryIds.push(catInput.id);
-            catLabel.textContent = "Category name: ";
-            catInput.placeholder = "Category name here";
-            newCat.appendChild(catLabel);
-            newCat.appendChild(catInput);
-            var questionNumber = 1; //sets number to count up from 1 instead of down from 5
-            
-            /******** create inputs for selected number of questions and add to id array ********/
-            while (makeQuestions > 0) {
-                var queDiv = document.createElement("div");
-                var queLabel = document.createElement("label");
-                var queInput = document.createElement("input");
-                var ansLabel = document.createElement("label");
-                var ansInput = document.createElement("input");
-                queLabel.textContent = `Question #${questionNumber}: `;
-                ansLabel.textContent = `Answer #${questionNumber}: `;
-                queLabel.className = "question";
-                queInput.id = `C${makeCategories}Q${questionNumber}`;
-                queInput.value = `I'm a question!!! C${makeCategories}Q${questionNumber}`; //DELETE THIS
-                gameQuestionIds.push(queInput.id);
-                ansLabel.className = "answer";
-                ansInput.id = `C${makeCategories}A${questionNumber}`;
-                ansInput.value = `I'm an answer!!! C${makeCategories}A${questionNumber}`; //DELETE THIS
-                gameAnswerIds.push(ansInput.id);
-                queInput.className = "input-box";
-                ansInput.className = "input-box";
-                queInput.placeholder = `Question ${questionNumber}`;
-                ansInput.placeholder = `Answer ${questionNumber}`;
-                queDiv.appendChild(queLabel);
-                queDiv.appendChild(queInput);
-                queDiv.appendChild(ansLabel);
-                queDiv.appendChild(ansInput);
-                newCat.appendChild(queDiv);
-                makeQuestions--;
-                questionNumber++;
-                }
-                questionsHere.appendChild(newCat);
-                makeCategories--;
-            }
-            
-        /******** Submit button ********/
-        var finishedButton = document.createElement("button");
-        finishedButton.id = "createGameBtn";
-        finishedButton.textContent = "I'm done!";
-        questionsHere.appendChild(finishedButton);
-        document.getElementById('C5Q1');
-        
-        finishedButton.addEventListener("click", () => { createGameBoard(getGameValues());});
-        }
-        /******** pressed ********/
-        else {alert("Please hit the 'Reset me button' to make a new game");}
-    }
-
+/******** resets the game to beginning ********/
 function refreshPage() {
 // var r = confirm("Are you sure you want to start again from the beginning?")
 // if (r) {

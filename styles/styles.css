@@ -85,3 +85,7 @@ h1 {
     /* align-self: flex-end; */
     font-size: 2.5vw;
 }
+
+#editButton {
+    display: none;
+}
