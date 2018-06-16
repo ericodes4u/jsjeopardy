@@ -40,13 +40,6 @@ editButton.addEventListener("click", editGame);
 /**
  * Functions
  **/
-/******** DELETE ME!!!!  test to be deleted upon completion ********/
-function test() {
-    console.log();
-    console.log("I'm a little teapot");
-    console.log(questions, categories);
-    console.log(gameQuestionIds, gameAnswerIds);
-}
 
 /******** listens to drop downs and registers change ********/
 function checkNumbers() {
@@ -238,6 +231,7 @@ function createGameBoard(gameData) {
                 showQuestion.addEventListener('click', displaySingleQuestion);
             }
         }
+        scoreboard();
     } else {
         return 0;
     }
@@ -257,7 +251,7 @@ function displaySingleQuestion() {
             }
         }
 
-        /******** create question div ********/
+        /******** create question display ********/
         var bigCard = document.createElement("div");
         bigCard.id = "shownQuestion";
         bigCard.className = "modal";
@@ -278,7 +272,7 @@ function displaySingleQuestion() {
             /******** remove question div ********/
             gameHere.removeChild(document.getElementById('shownQuestion'));
 
-            /******** create answer div ********/
+            /******** create answer answer display ********/
             var bigCard = document.createElement("div");
             bigCard.id = "shownAnswer";
             bigCard.className = "modal";
@@ -308,6 +302,39 @@ function editGame() {
         gameHere.removeChild(gameHere.firstChild);
     }
     gameValues = [];
+}
+
+function scoreboard() {
+    /******** create scoreboard button ********/
+    var scoreboardBtn = document.createElement("button");
+    scoreboardBtn.id = "scoreboardBtn";
+    scoreboardBtn.textContent = "Scores";
+    gameHere.appendChild(scoreboardBtn);
+
+    /******** create scoreboard display ********/
+    var bigCard = document.createElement("div");
+    bigCard.id = "scoreboard";
+    bigCard.className = "modal";
+    var bigCardContent = document.createElement("div");
+    bigCardContent.textContent = "Scoreboard!!";
+    var sbCloseButton = document.createElement("button");
+    sbCloseButton.textContent = "Close Scoreboard";
+    sbCloseButton.id = "sbCloseButton";
+    bigCard.appendChild(bigCardContent);
+    bigCard.appendChild(sbCloseButton);
+    gameHere.appendChild(bigCard);
+    bigCard.style.display = "none";
+
+    /******** scoreboard btn event listener ********/
+    scoreboardBtn.addEventListener('click', function () {
+        bigCard.style.display = "inline";
+    });
+
+    /******** close scoreboard event listener ********/
+    sbCloseButton.addEventListener('click', function () {
+        bigCard.style.display = "none";
+    });
+
 }
 
 /******** resets the game to beginning ********/
