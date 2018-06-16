@@ -12,7 +12,7 @@ add edit button
 /**
  * Global Variables
  */
-var startButton = document.getElementById("startButton"); 
+var startButton = document.getElementById("startButton");
 var resetButton = document.getElementById('resetButton');
 var editButton = document.getElementById('editButton');
 var questionsDrop = document.getElementById('questions');
@@ -29,8 +29,8 @@ var freshGame = 0;
 var showingQuestion = false;
 
 /**
-* Event Listeners
-**/
+ * Event Listeners
+ **/
 categoriesDrop.addEventListener('change', checkNumbers);
 questionsDrop.addEventListener('change', checkNumbers);
 startButton.addEventListener("click", createGameInputs);
@@ -38,14 +38,14 @@ resetButton.addEventListener("click", refreshPage);
 editButton.addEventListener("click", editGame);
 
 /**
-* Functions
-**/
+ * Functions
+ **/
 /******** DELETE ME!!!!  test to be deleted upon completion ********/
 function test() {
     console.log();
     console.log("I'm a little teapot");
-    console.log(questions,categories);
-    console.log(gameQuestionIds,gameAnswerIds);
+    console.log(questions, categories);
+    console.log(gameQuestionIds, gameAnswerIds);
 }
 
 /******** listens to drop downs and registers change ********/
@@ -149,8 +149,33 @@ function getGameValues() {
             question: currentQuestionValue,
             answer: currentAnswerValue
         };
-        // console.log(gameValues);
         gameValues.push(currentObject);
+    }
+
+    /******** data validation ********/
+    for (i = 0; i < gameCategoryIds.length; i++) {
+        if (document.getElementById(`errorMessage${i}`) != null) {
+            var errMsg = document.getElementById(`errorMessage${i}`);
+            errMsg.remove();
+        }
+    }
+
+    var errors = 0;
+    for (i = 0; i < gameCategoryIds.length; i++) {
+        var catNameCheck = document.getElementById(gameCategoryIds[i]);
+        if (catNameCheck.value == "") {
+            var errMsg = document.createElement("div");
+            errMsg.textContent = "You need a category name to continue!";
+            errMsg.id = `errorMessage${i}`;
+            var catLabelDiv = document.getElementById(gameCategoryIds[i]).parentElement;
+            catLabelDiv.insertBefore(errMsg, catLabelDiv.childNodes[0]);
+            errors++;
+        }
+    }
+
+    if (errors > 0) {
+        gameValues = [];
+        return 0;
     }
 
     // console.log(gameValues);
@@ -160,60 +185,61 @@ function getGameValues() {
 /******** creates the game board with data ********/
 function createGameBoard(gameData) {
     /******** Hide the input section ********/
-    questionsHere.style.display = "none";
-    var catNum = 1;
+    if (gameData !== 0) {
+        questionsHere.style.display = "none";
+        var catNum = 1;
 
-    /******** Create div for category ********/
-    for (let i = 0; i < gameData.length; i++) {
-        var tv = gameData[i];
-        var queNum, showQuestion;
-        /******** Is this a new category?  Yes: ********/
-        if (tv.cname !== lastCat || i == 0) {
-            var categoryDiv = document.createElement("div");
-            categoryDiv.textContent = tv.cname;
-            categoryDiv.className = "catDiv";
-            categoryDiv.id = `tvcat${catNum}`;
-            gameHere.appendChild(categoryDiv);
-            var lastCat = tv.cname;
-            catNum++;
+        /******** Create div for category ********/
+        for (let i = 0; i < gameData.length; i++) {
+            var tv = gameData[i];
+            var queNum, showQuestion;
+            /******** Is this a new category?  Yes: ********/
+            if (tv.cname !== lastCat || i == 0) {
+                var categoryDiv = document.createElement("div");
+                categoryDiv.textContent = tv.cname;
+                categoryDiv.className = "catDiv";
+                categoryDiv.id = `tvcat${catNum}`;
+                gameHere.appendChild(categoryDiv);
+                var lastCat = tv.cname;
+                catNum++;
 
-            /******** Create div for first question in category ********/
-            showQuestion = document.createElement("div");
-            queNum = tv.qnum;
-            showQuestion.textContent = 10;
-            showQuestion.className = "display-question";
-            showQuestion.id = `displayQuestionC${catNum - 1}Q${queNum}`;
-            categoryDiv.appendChild(showQuestion);
-            showQuestion.addEventListener('click', displaySingleQuestion);
-        } else {
-            /******** Is this a new category?  No: ********/
-            /******** Create div for remaining questions in category ********/
-            showQuestion = document.createElement("div");
-            queNum = tv.qnum;
-            switch (queNum) {
-                case 2:
-                    showQuestion.textContent = 20;
-                    break;
-                case 3:
-                    showQuestion.textContent = 30;
-                    break;
-                case 4:
-                    showQuestion.textContent = 40;
-                    break;
-                case 5:
-                    showQuestion.textContent = 50;
-                    break;
-                default:
-                    break;
-            }
-            showQuestion.className = "display-question";
-            showQuestion.id = `displayQuestionC${catNum - 1}Q${queNum}`;
-            categoryDiv.appendChild(showQuestion);
-            showQuestion.addEventListener('click', displaySingleQuestion);
-            if (editButton.style.display = "none") {
-                editButton.style.display = "inline";
+                /******** Create div for first question in category ********/
+                showQuestion = document.createElement("div");
+                queNum = tv.qnum;
+                showQuestion.textContent = 10;
+                showQuestion.className = "display-question";
+                showQuestion.id = `displayQuestionC${catNum - 1}Q${queNum}`;
+                categoryDiv.appendChild(showQuestion);
+                showQuestion.addEventListener('click', displaySingleQuestion);
+            } else {
+                /******** Is this a new category?  No: ********/
+                /******** Create div for remaining questions in category ********/
+                showQuestion = document.createElement("div");
+                queNum = tv.qnum;
+                switch (queNum) {
+                    case 2:
+                        showQuestion.textContent = 20;
+                        break;
+                    case 3:
+                        showQuestion.textContent = 30;
+                        break;
+                    case 4:
+                        showQuestion.textContent = 40;
+                        break;
+                    case 5:
+                        showQuestion.textContent = 50;
+                        break;
+                    default:
+                        break;
+                }
+                showQuestion.className = "display-question";
+                showQuestion.id = `displayQuestionC${catNum - 1}Q${queNum}`;
+                categoryDiv.appendChild(showQuestion);
+                showQuestion.addEventListener('click', displaySingleQuestion);
             }
         }
+    } else {
+        return 0;
     }
 }
 
@@ -243,7 +269,7 @@ function displaySingleQuestion() {
         bigCard.appendChild(bigCardContent);
         bigCard.appendChild(answerButton);
         gameHere.appendChild(bigCard);
-        
+
         showingQuestion = true;
         this.className = "display-question clicked";
 
@@ -251,7 +277,7 @@ function displaySingleQuestion() {
         answerButton.addEventListener('click', function () {
             /******** remove question div ********/
             gameHere.removeChild(document.getElementById('shownQuestion'));
-            
+
             /******** create answer div ********/
             var bigCard = document.createElement("div");
             bigCard.id = "shownAnswer";
@@ -264,7 +290,7 @@ function displaySingleQuestion() {
             bigCard.appendChild(bigCardContent);
             bigCard.appendChild(closeButton);
             gameHere.appendChild(bigCard);
-            
+
             /******** event listener for close button ********/
             closeButton.addEventListener('click', function () {
                 //remove answer div
@@ -286,10 +312,10 @@ function editGame() {
 
 /******** resets the game to beginning ********/
 function refreshPage() {
-// var r = confirm("Are you sure you want to start again from the beginning?")
-// if (r) {
-//     // put code here after testing
-// }
+    // var r = confirm("Are you sure you want to start again from the beginning?")
+    // if (r) {
+    //     // put code here after testing
+    // }
     window.location.reload(false);
     freshGame = 0;
 }
