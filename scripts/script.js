@@ -26,6 +26,7 @@ var gameAnswerIds = [];
 var gameCategoryIds = [];
 var gameValues = [];
 var freshGame = 0;
+var freshScoreboard = true;
 var showingQuestion = false;
 
 /**
@@ -181,6 +182,10 @@ function createGameBoard(gameData) {
     if (gameData !== 0) {
         questionsHere.style.display = "none";
         var catNum = 1;
+        /******** show edit button ********/
+        if (editButton.style.display == "") {
+            editButton.style.display = "inline";
+        }
 
         /******** Create div for category ********/
         for (let i = 0; i < gameData.length; i++) {
@@ -297,11 +302,16 @@ function displaySingleQuestion() {
 
 /******** allows game to be edited after first creation ********/
 function editGame() {
-    questionsHere.style.display = "flex";
-    while (gameHere.firstChild) {
-        gameHere.removeChild(gameHere.firstChild);
+
+    var editConf = confirm("Warning! Your questions will be saved, but scores and progress will be lost");
+    if (editConf) {
+        questionsHere.style.display = "flex";
+        while (gameHere.firstChild) {
+            gameHere.removeChild(gameHere.firstChild);
+            gameValues = [];
+            freshScoreboard = true;
+        }
     }
-    gameValues = [];
 }
 
 function scoreboard() {
@@ -312,27 +322,85 @@ function scoreboard() {
     gameHere.appendChild(scoreboardBtn);
 
     /******** create scoreboard display ********/
-    var bigCard = document.createElement("div");
-    bigCard.id = "scoreboard";
-    bigCard.className = "modal";
-    var bigCardContent = document.createElement("div");
-    bigCardContent.textContent = "Scoreboard!!";
+    var scoreboardDiv = document.createElement("div");
+    scoreboardDiv.id = "scoreboard";
+    scoreboardDiv.className = "modal";
+    var scoreboardDivContent = document.createElement("div");
+    scoreboardDivContent.textContent = "Scoreboard!!";
     var sbCloseButton = document.createElement("button");
     sbCloseButton.textContent = "Close Scoreboard";
     sbCloseButton.id = "sbCloseButton";
-    bigCard.appendChild(bigCardContent);
-    bigCard.appendChild(sbCloseButton);
-    gameHere.appendChild(bigCard);
-    bigCard.style.display = "none";
+    scoreboardDiv.appendChild(scoreboardDivContent);
+    gameHere.appendChild(scoreboardDiv);
+    scoreboardDiv.style.display = "none";
 
     /******** scoreboard btn event listener ********/
     scoreboardBtn.addEventListener('click', function () {
-        bigCard.style.display = "inline";
+        /******** First time making a scoreboard?: Yes ********/
+        if (freshScoreboard) {
+            freshScoreboard = false;
+
+            /******** team numbers select number ********/
+            var teamNumbersDiv = document.createElement("div");
+            teamNumbersDiv.id = "teamNumbersDiv";
+            teamNumbersDiv.textContent = "Number of teams?";
+            scoreboardDiv.appendChild(teamNumbersDiv);
+            var teamNumbersPrompt = document.createElement("form");
+            teamNumbersPrompt.id = "teamNumbersPrompt";
+            var teamNumbersDrop = document.createElement("select");
+            teamNumbersDrop.id = "teamNumbersDrop";
+            for (i = 2; i < 9; i++) {
+                var teamNumbersOption = document.createElement("option");
+                teamNumbersOption.textContent = i;
+                teamNumbersDrop.appendChild(teamNumbersOption);
+            }
+            var teamNumbersSubmit = document.createElement("button");
+            teamNumbersSubmit.id = "teamNumbersSubmit";
+            teamNumbersSubmit.textContent = "Let's Go!";
+
+            /******** team number submit button event listener ********/
+            teamNumbersSubmit.addEventListener("click", function (e) {
+                var chosenTeamsNumber = teamNumbersDrop.value;
+                scoreboardDiv.style.display = "none";
+                var scoresHere = document.createElement("div");
+                scoresHere.id = "scoresHere";
+                scoreboardDiv.appendChild(scoresHere);
+                for (i = 0; i < chosenTeamsNumber; i++) {
+                    var teamScoreDiv = document.createElement("div");
+                    teamScoreDiv.id = `team${i+1}ScoreDiv`;
+                    teamScoreDiv.className = "score-div";
+                    var teamScoreName = document.createElement("div");
+                    teamScoreName.id = `team${i+1}ScoreName`;
+                    teamScoreName.textContent = `Team ${i+1}:`;
+                    var teamScoreValue = document.createElement("div");
+                    teamScoreValue.id = `team${i+1}ScoreValue`;
+                    teamScoreValue.textContent = "0";
+                    teamScoreDiv.appendChild(teamScoreName);
+                    teamScoreDiv.appendChild(teamScoreValue);
+                    scoresHere.appendChild(teamScoreDiv);
+                }
+
+            });
+
+            teamNumbersDiv.appendChild(teamNumbersPrompt);
+            teamNumbersPrompt.appendChild(teamNumbersDrop);
+            teamNumbersDiv.appendChild(teamNumbersSubmit);
+
+            scoreboardDiv.style.display = "flex";
+        } 
+        /******** First time making a scoreboard?: No ********/
+        else {
+            scoreboardDiv.style.display = "flex";
+            scoreboardDiv.appendChild(sbCloseButton);
+            if (document.getElementById('teamNumbersDiv') !== null) {
+                document.getElementById('teamNumbersDiv').remove();
+            }
+        }
     });
 
     /******** close scoreboard event listener ********/
     sbCloseButton.addEventListener('click', function () {
-        bigCard.style.display = "none";
+        scoreboardDiv.style.display = "none";
     });
 
 }

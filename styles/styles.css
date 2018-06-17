@@ -89,3 +89,16 @@ h1 {
 #editButton {
     display: none;
 }
+
+.score-div {
+    padding: 1.2vw;
+    margin: .2vw;
+    text-align: center;
+    border: darkblue 2px solid;
+}
+
+#scoresHere {
+    display: flex;
+    flex-wrap: wrap;
+    font-size: 4vw;
+}
