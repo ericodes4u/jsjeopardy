@@ -102,3 +102,17 @@ h1 {
     flex-wrap: wrap;
     font-size: 4vw;
 }
+
+.team-score-value {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    
+}
+
+#teamNumbersDrop {
+    font-size: 3vw;
+    /* width: 5vw; */
+    color: blue;
+}
+

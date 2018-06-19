@@ -21,13 +21,14 @@ var questions = document.getElementById("questions").value;
 var categories = document.getElementById("categories").value;
 var questionsHere = document.getElementById('questionsHere');
 var gameHere = document.getElementById('gameHere');
+var pointValue = 10;
 var gameQuestionIds = [];
 var gameAnswerIds = [];
 var gameCategoryIds = [];
 var gameValues = [];
 var freshGame = 0;
-var freshScoreboard = true;
 var showingQuestion = false;
+var scoreboardDiv;
 
 /**
  * Event Listeners
@@ -46,6 +47,7 @@ editButton.addEventListener("click", editGame);
 function checkNumbers() {
     questions = document.getElementById("questions").value;
     categories = document.getElementById("categories").value;
+    console.log("triggered");
 }
 
 /******** creates inputs for game data to be entered ********/
@@ -53,6 +55,9 @@ function createGameInputs() {
     /******** Initial check for if the start button has been pressed ********/
     /******** Not pressed ********/
     if (freshGame == 0) {
+        categoriesDrop.removeEventListener('change', checkNumbers);
+        questionsDrop.removeEventListener('change', checkNumbers);
+
         freshGame = 1;
         var makeCategories = categories;
         var makeQuestions = questions;
@@ -245,10 +250,11 @@ function createGameBoard(gameData) {
 /******** shows questions/answers ********/
 function displaySingleQuestion() {
     /******** get question ID in form of C#Q# ********/
-    var qId = this.id.substr(this.id.length - 4);
 
     /******** search for the right question, store question and answer variables ********/
     if (showingQuestion == false) {
+        var qId = this.id.substr(this.id.length - 4);
+        pointValue = Number(this.textContent);
         for (i = 0; i < gameValues.length; i++) {
             if (gameValues[i].qId == qId) {
                 var queCard = gameValues[i].question;
@@ -284,7 +290,7 @@ function displaySingleQuestion() {
             var bigCardContent = document.createElement("div");
             bigCardContent.textContent = ansCard;
             var closeButton = document.createElement("button");
-            closeButton.textContent = "Oh man!!";
+            closeButton.textContent = "Scoreboard";
             closeButton.id = "closeButton";
             bigCard.appendChild(bigCardContent);
             bigCard.appendChild(closeButton);
@@ -292,9 +298,12 @@ function displaySingleQuestion() {
 
             /******** event listener for close button ********/
             closeButton.addEventListener('click', function () {
-                //remove answer div
+                /******** remove answer div ********/
                 gameHere.removeChild(document.getElementById('shownAnswer'));
                 showingQuestion = false;
+                var showScoreboard = document.getElementById('scoreboard');
+                showScoreboard.style.display = "flex";
+
             });
         });
     }
@@ -309,7 +318,6 @@ function editGame() {
         while (gameHere.firstChild) {
             gameHere.removeChild(gameHere.firstChild);
             gameValues = [];
-            freshScoreboard = true;
         }
     }
 }
@@ -334,75 +342,107 @@ function scoreboard() {
     gameHere.appendChild(scoreboardDiv);
     scoreboardDiv.style.display = "none";
 
+    /******** team numbers select number ********/
+    var teamNumbersDiv = document.createElement("div");
+    teamNumbersDiv.id = "teamNumbersDiv";
+    teamNumbersDiv.textContent = "Number of teams?";
+    scoreboardDiv.appendChild(teamNumbersDiv);
+    var teamNumbersPrompt = document.createElement("form");
+    teamNumbersPrompt.id = "teamNumbersPrompt";
+    var teamNumbersDrop = document.createElement("select");
+    teamNumbersDrop.id = "teamNumbersDrop";
+    for (i = 2; i < 9; i++) {
+        var teamNumbersOption = document.createElement("option");
+        teamNumbersOption.textContent = i;
+        teamNumbersDrop.appendChild(teamNumbersOption);
+    }
+    var teamNumbersSubmit = document.createElement("button");
+    teamNumbersSubmit.id = "teamNumbersSubmit";
+    teamNumbersSubmit.textContent = "Let's Go!";
+
+    /******** team number submit button event listener ********/
+    teamNumbersSubmit.addEventListener("click", function (e) {
+        var chosenTeamsNumber = teamNumbersDrop.value;
+        scoreboardDiv.style.display = "none";
+        var scoresHere = document.createElement("div");
+        scoresHere.id = "scoresHere";
+        scoreboardDiv.appendChild(scoresHere);
+        for (i = 0; i < chosenTeamsNumber; i++) {
+            var teamScoreDiv = document.createElement("div");
+            teamScoreDiv.id = `team${i + 1}ScoreDiv`;
+            teamScoreDiv.className = "score-div";
+            var teamScoreName = document.createElement("div");
+            teamScoreName.id = `team${i + 1}ScoreName`;
+            teamScoreName.textContent = `Team ${i + 1}:`;
+            var teamScoreValue = document.createElement("div");
+            teamScoreValue.id = `team${i + 1}ScoreValue`;
+            var teamScoreNumber = document.createElement("div");
+            teamScoreValue.id = `team${i + 1}ScoreValue`;
+            teamScoreValue.className = "team-score-value";
+            teamScoreNumber.textContent = 0;
+            var plusSign = document.createElement("button");
+            plusSign.textContent = "+";
+            var minusSign = document.createElement("button");
+            minusSign.textContent = "-";
+            teamScoreValue.appendChild(minusSign);
+            teamScoreValue.appendChild(teamScoreNumber);
+            teamScoreValue.appendChild(plusSign);
+            teamScoreDiv.appendChild(teamScoreName);
+            teamScoreDiv.appendChild(teamScoreValue);
+            scoresHere.appendChild(teamScoreDiv);
+            plusSign.addEventListener('click', increaseScore);
+            minusSign.addEventListener('click', decreaseScore);
+        }
+
+        if (document.getElementById('teamNumbersDiv') !== null) {
+            document.getElementById('teamNumbersDiv').remove();
+        }
+        scoreboardDiv.appendChild(sbCloseButton);
+
+        showingQuestion = false;
+        scoreboardBtn.disabled = false;
+
+
+    });
+
+    teamNumbersDiv.appendChild(teamNumbersPrompt);
+    teamNumbersPrompt.appendChild(teamNumbersDrop);
+    teamNumbersDiv.appendChild(teamNumbersSubmit);
+
+    scoreboardDiv.style.display = "flex";
+
     /******** scoreboard btn event listener ********/
     scoreboardBtn.addEventListener('click', function () {
-        /******** First time making a scoreboard?: Yes ********/
-        if (freshScoreboard) {
-            freshScoreboard = false;
+        this.disabled = true;
+        showingQuestion = true;
+        scoreboardDiv.style.display = "flex";
 
-            /******** team numbers select number ********/
-            var teamNumbersDiv = document.createElement("div");
-            teamNumbersDiv.id = "teamNumbersDiv";
-            teamNumbersDiv.textContent = "Number of teams?";
-            scoreboardDiv.appendChild(teamNumbersDiv);
-            var teamNumbersPrompt = document.createElement("form");
-            teamNumbersPrompt.id = "teamNumbersPrompt";
-            var teamNumbersDrop = document.createElement("select");
-            teamNumbersDrop.id = "teamNumbersDrop";
-            for (i = 2; i < 9; i++) {
-                var teamNumbersOption = document.createElement("option");
-                teamNumbersOption.textContent = i;
-                teamNumbersDrop.appendChild(teamNumbersOption);
-            }
-            var teamNumbersSubmit = document.createElement("button");
-            teamNumbersSubmit.id = "teamNumbersSubmit";
-            teamNumbersSubmit.textContent = "Let's Go!";
-
-            /******** team number submit button event listener ********/
-            teamNumbersSubmit.addEventListener("click", function (e) {
-                var chosenTeamsNumber = teamNumbersDrop.value;
-                scoreboardDiv.style.display = "none";
-                var scoresHere = document.createElement("div");
-                scoresHere.id = "scoresHere";
-                scoreboardDiv.appendChild(scoresHere);
-                for (i = 0; i < chosenTeamsNumber; i++) {
-                    var teamScoreDiv = document.createElement("div");
-                    teamScoreDiv.id = `team${i+1}ScoreDiv`;
-                    teamScoreDiv.className = "score-div";
-                    var teamScoreName = document.createElement("div");
-                    teamScoreName.id = `team${i+1}ScoreName`;
-                    teamScoreName.textContent = `Team ${i+1}:`;
-                    var teamScoreValue = document.createElement("div");
-                    teamScoreValue.id = `team${i+1}ScoreValue`;
-                    teamScoreValue.textContent = "0";
-                    teamScoreDiv.appendChild(teamScoreName);
-                    teamScoreDiv.appendChild(teamScoreValue);
-                    scoresHere.appendChild(teamScoreDiv);
-                }
-
-            });
-
-            teamNumbersDiv.appendChild(teamNumbersPrompt);
-            teamNumbersPrompt.appendChild(teamNumbersDrop);
-            teamNumbersDiv.appendChild(teamNumbersSubmit);
-
-            scoreboardDiv.style.display = "flex";
-        } 
-        /******** First time making a scoreboard?: No ********/
-        else {
-            scoreboardDiv.style.display = "flex";
-            scoreboardDiv.appendChild(sbCloseButton);
-            if (document.getElementById('teamNumbersDiv') !== null) {
-                document.getElementById('teamNumbersDiv').remove();
-            }
-        }
     });
 
     /******** close scoreboard event listener ********/
     sbCloseButton.addEventListener('click', function () {
         scoreboardDiv.style.display = "none";
+        showingQuestion = false;
+        scoreboardBtn.disabled = false;
+        pointValue = 10;
     });
 
+}
+
+function newScoreboardPrompt() {
+
+}
+
+function increaseScore() {
+    var newScore = Number(this.parentElement.childNodes[1].textContent);
+    newScore += pointValue;
+    this.parentElement.childNodes[1].textContent = newScore;
+}
+
+function decreaseScore() {
+    var newScore = Number(this.parentElement.childNodes[1].textContent);
+    newScore -= pointValue;
+    this.parentElement.childNodes[1].textContent = newScore;
 }
 
 /******** resets the game to beginning ********/
